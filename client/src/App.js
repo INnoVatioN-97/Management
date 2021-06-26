@@ -19,36 +19,26 @@ const styles = (theme) => ({
     },
 });
 
-const customers = [
-    {
-        id: 1,
-        image: 'https://placeimg.com/64/64/1',
-        name: '고영일',
-        birthDay: '970603',
-        gender: '남자',
-        job: '대학생',
-    },
-    {
-        id: 2,
-        image: 'https://placeimg.com/64/64/2',
-        name: '고영이',
-        birthDay: '970604',
-        gender: '남자',
-        job: '프로그래머',
-    },
-    {
-        id: 3,
-        image: 'https://placeimg.com/64/64/3',
-        name: '고영삼',
-        birthDay: '970605',
-        gender: '남자',
-        job: '프로글래머',
-    },
-];
-
 class App extends React.Component {
+    //state: 변경될 수 없는 변수를 처리할 때 사용
+    state = {
+        customers: '',
+    };
+
+    componentDidMount() {
+        this.callApi()
+            .then((res) => this.setState({ customers: res }))
+            .catch((err) => console.log(err));
+    }
+
+    callApi = async () => {
+        const response = await fetch('/api/customers'); //테스트 목적으로 localhost 내 고객 정보를 가져와서
+        const body = await response.json(); //json형태로 변환
+        return body; //결과적으로 고객정보 json이 담긴 body를 반환
+    };
+
     render() {
-        const { classes } = this.props;
+        const { classes } = this.props; //props : 변경될 수 있는 변수 처리시 사용
         return (
             <Paper className={classes.root}>
                 <Table className={classes.table}>
@@ -63,19 +53,21 @@ class App extends React.Component {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {customers.map((c) => {
-                            return (
-                                <Customer
-                                    key={c.id}
-                                    id={c.id}
-                                    image={c.image}
-                                    name={c.name}
-                                    birthDay={c.birthDay}
-                                    gender={c.gender}
-                                    job={c.job}
-                                />
-                            );
-                        })}
+                        {this.state.customers
+                            ? this.state.customers.map((c) => {
+                                  return (
+                                      <Customer
+                                          key={c.id}
+                                          id={c.id}
+                                          image={c.image}
+                                          name={c.name}
+                                          birthDay={c.birthDay}
+                                          gender={c.gender}
+                                          job={c.job}
+                                      />
+                                  );
+                              })
+                            : '불러오는 중...'}
                     </TableBody>
                 </Table>
                 {/* 아래의 불필요한 반복을 위의 map기능으로 구현.
