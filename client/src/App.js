@@ -5,6 +5,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { withStyles } from '@material-ui/core/styles';
 import React from 'react';
 
@@ -17,15 +18,20 @@ const styles = (theme) => ({
     table: {
         minWidth: 1080,
     },
+    progress: {
+        margin: theme.spacing.unit * 2,
+    },
 });
 
 class App extends React.Component {
     //state: 변경될 수 없는 변수를 처리할 때 사용
     state = {
         customers: '',
+        completed: 0, //progressBar는 0~100까지 게이지를 지님.
     };
 
     componentDidMount() {
+        this.timer = setInterval(this.progress, 20);
         this.callApi()
             .then((res) => this.setState({ customers: res }))
             .catch((err) => console.log(err));
@@ -35,6 +41,12 @@ class App extends React.Component {
         const response = await fetch('/api/customers'); //테스트 목적으로 localhost 내 고객 정보를 가져와서
         const body = await response.json(); //json형태로 변환
         return body; //결과적으로 고객정보 json이 담긴 body를 반환
+    };
+
+    progress = () => {
+        const { completed } = this.state;
+        this.setState({ completed: completed >= 100 ? 0 : completed + 1 });
+        console.log(completed);
     };
 
     render() {
@@ -53,21 +65,28 @@ class App extends React.Component {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {this.state.customers
-                            ? this.state.customers.map((c) => {
-                                  return (
-                                      <Customer
-                                          key={c.id}
-                                          id={c.id}
-                                          image={c.image}
-                                          name={c.name}
-                                          birthDay={c.birthDay}
-                                          gender={c.gender}
-                                          job={c.job}
-                                      />
-                                  );
-                              })
-                            : '불러오는 중...'}
+                        {this.state.customers ? (
+                            this.state.customers.map((c) => {
+                                return (
+                                    <Customer
+                                        key={c.id}
+                                        id={c.id}
+                                        image={c.image}
+                                        name={c.name}
+                                        birthday={c.birthday}
+                                        gender={c.gender}
+                                        job={c.job}
+                                    />
+                                );
+                            })
+                        ) : (
+                            <TableRow>
+                                {/* 여섯개 열을 다 차지하고, 가운데에 위치한 프로그레스 바 */}
+                                <TableCell colSpan="6" align="center">
+                                    <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed} />
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
                 {/* 아래의 불필요한 반복을 위의 map기능으로 구현.
