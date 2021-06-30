@@ -39,7 +39,8 @@ app.post('/api/customers', upload.single('image'), (req, res) => {
      * createdDate는 insert 당시의 현재 시간을 넣어야 하므로 now(),
      * isDeleted는 0으로 (삭제될 시 UPDATE문으로 1로 변경해 처리.)
      */
-    let sql = 'INSERT CUSTOMER VALUES (null, ?, ?, ?, ?, now(), 0)';
+    let sql = 'INSERT CUSTOMER VALUES (null, ?, ?, ?, ?, ?, now(), 0)';
+    console.log('insert 동작중');
     let image = '/image/' + req.file.filename;
     let name = req.body.name;
     let birthday = req.body.birthday;
